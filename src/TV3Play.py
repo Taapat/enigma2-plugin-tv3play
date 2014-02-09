@@ -4,6 +4,7 @@ from twisted.web.client import downloadPage
 from enigma import ePicLoad, eServiceReference
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
+from Components.Label import Label
 from Components.Pixmap import Pixmap
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
@@ -84,6 +85,7 @@ class TV3PlayMenu(Screen):
 				</convert>
 			</widget>
 			<widget name="pic" position="380,15" size="250,141" alphatest="on" />
+			<widget name="cur" position="380,160" size="250,160" halign="center" font="Regular;22" />
 			<eLabel position="110,358" size="148,2" backgroundColor="#00ff2525" />
 			<eLabel position="370,358" size="148,2" backgroundColor="#00389416" />
 			<widget source="key_red" render="Label" position="110,328" zPosition="2" size="148,30" \
@@ -106,8 +108,9 @@ class TV3PlayMenu(Screen):
 				"red": self.Cancel,
 			})
 		self["list"] = List([])
-		self["list"].onSelectionChanged.append(self.UpdatePicture)
+		self["list"].onSelectionChanged.append(self.SelectionChanged)
 		self["pic"] = Pixmap()
+		self["cur"] = Label()
 		self.menulist = None
 		self.categories = None
 		self.defimage = LoadPixmap(resolveFilename(SCOPE_PLUGINS,
@@ -115,17 +118,19 @@ class TV3PlayMenu(Screen):
 		self.CreateRegions()
 		if not os.path.exists(TMPDIR):
 			os.mkdir(TMPDIR)
-		self.onLayoutFinish.append(self.UpdatePicture)
+		self.onLayoutFinish.append(self.SelectionChanged)
 
 	def CreateRegions(self):
 		content = []
 		for line in REGIONS:
 			content.append((line, None, None))
 		self["list"].setList(content)
+		self["cur"].setText(content[0][0])
 
-	def UpdatePicture(self):
+	def SelectionChanged(self):
 		current = self["list"].getCurrent()
-		imagepath = os.path.join(TMPDIR, current[0] + ".jpg")
+		data = current[0]
+		imagepath = os.path.join(TMPDIR, data + ".jpg")
 		if os.path.exists(imagepath) and os.path.getsize(imagepath) > 10000:
 			sc = AVSwitch().getFramebufferScale()
 			self.picload = ePicLoad()
@@ -136,6 +141,10 @@ class TV3PlayMenu(Screen):
 			self.picload.startDecode(imagepath)
 		else:
 			self["pic"].instance.setPixmap(self.defimage)
+		if current[2] == "back":
+			self["cur"].setText("")
+		else:
+			self["cur"].setText(data)
 
 	def ShowPic(self, picInfo = None):
 		ptr = self.picload.getData()
@@ -175,6 +184,7 @@ class TV3PlayMenu(Screen):
 				self.playVideo(data)
 		if content:
 			self["list"].setList(content)
+			self["cur"].setText("")
 			for line in content[1:]:
 				image = os.path.join(TMPDIR, line[0] + ".jpg")
 				if not os.path.exists(image):
