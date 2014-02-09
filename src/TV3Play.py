@@ -108,7 +108,7 @@ class TV3PlayMenu(Screen):
 		self["list"] = List([])
 		self["list"].onSelectionChanged.append(self.UpdatePicture)
 		self["pic"] = Pixmap()
-		self.menulist = []
+		self.menulist = None
 		self.categories = None
 		self.defimage = LoadPixmap(resolveFilename(SCOPE_PLUGINS,
 			"Extensions/TV3Play/icon.png"))
@@ -148,31 +148,31 @@ class TV3PlayMenu(Screen):
 		current = self["list"].getCurrent()
 		data = current[2]
 		if data == "back":
-			if "videos" in self.menulist:
+			if self.menulist == "videos":
 				content = (TV3PlayAddon(self.region).listCategories(self.categories))
-				self.menulist.remove("videos")
-			elif "categories" in self.menulist:
+				self.menulist = "categories"
+			elif self.menulist == "categories":
 				content = (TV3PlayAddon(self.region).listPrograms())
-				self.menulist.remove("categories")
+				self.menulist = "programs"
 			else:
 				content = []
-				self.menulist = []
+				self.menulist = None
 				self.CreateRegions()
 		else:
-			if "videos" in self.menulist:
-				content = []
-				self.playVideo(data)
-			elif "categories" in self.menulist:
-				content = (TV3PlayAddon(self.region).listVideos(data))
-				self.menulist.append("videos")
-			elif "programs" in self.menulist:
-				content = (TV3PlayAddon(self.region).listCategories(data))
-				self.menulist.append("categories")
-				self.categories = data
-			else:
+			if not self.menulist:
 				self.region = current[0]
 				content = (TV3PlayAddon(self.region).listPrograms())
-				self.menulist.append("programs")
+				self.menulist = "programs"
+			elif self.menulist == "programs":
+				content = (TV3PlayAddon(self.region).listCategories(data))
+				self.menulist = "categories"
+				self.categories = data
+			elif self.menulist == "categories":
+				content = (TV3PlayAddon(self.region).listVideos(data))
+				self.menulist = "videos"			
+			else:
+				content = []
+				self.playVideo(data)
 		if content:
 			self["list"].setList(content)
 			for line in content[1:]:
