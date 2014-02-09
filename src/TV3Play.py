@@ -4,8 +4,6 @@ from twisted.web.client import downloadPage
 from enigma import ePicLoad, eServiceReference
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
-from Components.config import getConfigListEntry
-from Components.ConfigList import ConfigListScreen
 from Components.Pixmap import Pixmap
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
