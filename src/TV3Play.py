@@ -178,7 +178,7 @@ class TV3PlayMenu(Screen):
 				self.categories = data
 			elif self.menulist == "categories":
 				content = (TV3PlayAddon(self.region).listVideos(data))
-				self.menulist = "videos"			
+				self.menulist = "videos"
 			else:
 				content = []
 				self.playVideo(data)
@@ -198,11 +198,8 @@ class TV3PlayMenu(Screen):
 			url = "rtmp://tv3latviavod.deac.lv/vod//mp4:" + url1[0]
 		else:
 			url = videoId
-		if hasattr(self.session, "mediaplayer"):
-			mp = self.session.mediaplayer
-		else:
-			mp = self.session.open(MediaPlayer)
 		ref = eServiceReference(4097, 0, url)
+		mp = self.OpenMP()
 		mp.playlist.addFile(ref)
 		print "[TV3 Play] PLAY", url
 		mp.playServiceRefEntry(ref)
@@ -213,6 +210,21 @@ class TV3PlayMenu(Screen):
 				mp.playlist.deleteFile(i)
 				mp.playlist.updateList()
 				break
+
+	def OpenMP(self):
+		if hasattr(self.session, "mediaplayer"):
+			mp = self.session.mediaplayer
+			try:
+				len(mp.playlist)
+			except Exception, e:
+				pass
+			else:
+				return mp
+		if isinstance(self.session.current_dialog, MediaPlayer):
+			self.session.mediaplayer = self.session.current_dialog
+		else:
+			self.session.mediaplayer = self.session.open(MediaPlayer)
+		return self.session.mediaplayer
 
 	def Cancel(self):
 		if os.path.exists(TMPDIR):
