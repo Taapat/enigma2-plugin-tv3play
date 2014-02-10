@@ -118,7 +118,7 @@ class TV3PlayMenu(Screen):
 		self.CreateRegions()
 		if not os.path.exists(TMPDIR):
 			os.mkdir(TMPDIR)
-		self.onLayoutFinish.append(self.SelectionChanged)
+		self.onLayoutFinish.append(self.ShowDefPic)
 
 	def CreateRegions(self):
 		content = []
@@ -127,28 +127,32 @@ class TV3PlayMenu(Screen):
 		self["list"].setList(content)
 		self["cur"].setText(content[0][0])
 
+	def ShowDefPic(self):
+		self["pic"].instance.setPixmap(self.defimage)
+
 	def SelectionChanged(self):
 		current = self["list"].getCurrent()
-		data = current[0]
-		imagepath = os.path.join(TMPDIR, data + ".jpg")
-		if os.path.exists(imagepath) and os.path.getsize(imagepath) > 10000:
-			sc = AVSwitch().getFramebufferScale()
-			self.picload = ePicLoad()
-			self.picload.PictureData.get().append(boundFunction(self.ShowPic))
-			self.picload.setPara((self["pic"].instance.size().width(),
-				self["pic"].instance.size().height(),
-				sc[0], sc[1], False, 0, "#00000000"))
-			self.picload.startDecode(imagepath)
-		else:
-			self["pic"].instance.setPixmap(self.defimage)
 		if current[2] == "back":
 			self["cur"].setText("")
+			self.ShowDefPic()
 		else:
+			data = current[0]
 			self["cur"].setText(data)
+			imagepath = os.path.join(TMPDIR, data + ".jpg")
+			if os.path.exists(imagepath) and os.path.getsize(imagepath) > 15000:
+				sc = AVSwitch().getFramebufferScale()
+				self.picload = ePicLoad()
+				self.picload.PictureData.get().append(boundFunction(self.ShowPic))
+				self.picload.setPara((self["pic"].instance.size().width(),
+					self["pic"].instance.size().height(),
+					sc[0], sc[1], False, 0, "#00000000"))
+				self.picload.startDecode(imagepath)
+			else:
+				self.ShowDefPic()
 
 	def ShowPic(self, picInfo = None):
 		ptr = self.picload.getData()
-		if ptr is not None:
+		if ptr:
 			print "[TV3 Play] Show image"
 			self["pic"].instance.setPixmap(ptr.__deref__())
 		del self.picload
