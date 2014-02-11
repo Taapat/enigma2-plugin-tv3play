@@ -113,24 +113,36 @@ class TV3PlayMenu(Screen):
 		self["cur"] = Label()
 		self.menulist = None
 		self.categories = None
+		self.videos = None
+		self.storedcontent = {}
 		self.picloads = {}
 		self.defimage = LoadPixmap(resolveFilename(SCOPE_PLUGINS,
 			"Extensions/TV3Play/icon.png"))
 		self.spinstarted = 0
 		self.spinner = {}
-		for i in range(1, 8):
-			self.spinner[i] = LoadPixmap(resolveFilename(SCOPE_PLUGINS,
-			"Extensions/TV3Play/wait%s.png" % i))
 		self.spinnerTimer = eTimer()
 		self.spinnerTimer.timeout.get().append(self.SelectionChanged)
-		self.CreateRegions()
+		self.StartupSettings()
 		if not os.path.exists(TMPDIR):
 			os.mkdir(TMPDIR)
 		self.onLayoutFinish.append(self.ShowDefPic)
 
+	def StartupSettings(self):
+		for data in range(1, 8):
+			self.spinner[data] = LoadPixmap(resolveFilename(SCOPE_PLUGINS,
+			"Extensions/TV3Play/wait%s.png" % data))
+		content = []
+		for data in REGIONS:
+			content.append((data, None, None))
+			image = os.path.join(TMPDIR, data + ".jpg")
+			self.picloads[image] = False
+		self["list"].setList(content)
+		self["cur"].setText(content[0][0])
+		self.storedcontent["regions"] = content
+
 	def StartSpinner(self):
 		self.spinnerTimer.stop()
-		if self.spinstarted < 6:
+		if self.spinstarted < 7:
 			self.spinstarted += 1
 		else:
 			self.spinstarted = 1
@@ -141,13 +153,6 @@ class TV3PlayMenu(Screen):
 		if self.spinstarted > 0:
 			self.spinstarted = 0
 			self.spinnerTimer.stop()
-
-	def CreateRegions(self):
-		content = []
-		for line in REGIONS:
-			content.append((line, None, None))
-		self["list"].setList(content)
-		self["cur"].setText(content[0][0])
 
 	def ShowDefPic(self):
 		self["pic"].instance.setPixmap(self.defimage)
@@ -192,26 +197,44 @@ class TV3PlayMenu(Screen):
 		data = current[2]
 		if data == "back":
 			if self.menulist == "videos":
-				content = (TV3PlayAddon(self.region).listCategories(self.categories))
+				stored = "categories%s" % self.categories
+				content = self.storedcontent[stored]
 				self.menulist = "categories"
 			elif self.menulist == "categories":
-				content = (TV3PlayAddon(self.region).listPrograms())
+				stored = "programs%s" % self.region
+				content = self.storedcontent[stored]
 				self.menulist = "programs"
 			else:
 				content = []
 				self.menulist = None
-				self.CreateRegions()
+				content = self.storedcontent["regions"]
 		else:
 			if not self.menulist:
 				self.region = current[0]
-				content = (TV3PlayAddon(self.region).listPrograms())
+				stored = "programs%s" % self.region
+				if stored in self.storedcontent:
+					content = self.storedcontent[stored]
+				else:
+					content = (TV3PlayAddon(self.region).listPrograms())
+					self.storedcontent[stored] = content
 				self.menulist = "programs"
 			elif self.menulist == "programs":
-				content = (TV3PlayAddon(self.region).listCategories(data))
+				stored = "categories%s" % data
+				if stored in self.storedcontent:
+					content = self.storedcontent[stored]
+				else:
+					content = (TV3PlayAddon(self.region).listCategories(data))
+					self.categories = data
+					self.storedcontent["categories%s" % data] = content
 				self.menulist = "categories"
-				self.categories = data
 			elif self.menulist == "categories":
-				content = (TV3PlayAddon(self.region).listVideos(data))
+				stored = "videos%s" % data
+				if stored in self.storedcontent:
+					content = self.storedcontent[stored]
+				else:
+					content = (TV3PlayAddon(self.region).listVideos(data))
+					self.videos = data
+					self.storedcontent["videos%s" % data] = content
 				self.menulist = "videos"
 			else:
 				content = []
@@ -225,7 +248,6 @@ class TV3PlayMenu(Screen):
 					downloadPage(line[1], image)\
 						.addCallback(boundFunction(self.downloadFinished, image))\
 						.addErrback(boundFunction(self.downloadFailed, image))
-			print "[TV3 Play] Images downloaded"
 
 	def downloadFinished(self, image, result):
 		self.picloads[image] = True
@@ -274,3 +296,4 @@ class TV3PlayMenu(Screen):
 				os.remove(os.path.join(TMPDIR, name))
 			os.rmdir(TMPDIR)
 		self.close()
+
