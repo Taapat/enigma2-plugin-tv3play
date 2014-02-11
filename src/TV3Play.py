@@ -1,7 +1,7 @@
 import os
 from twisted.web.client import downloadPage
 
-from enigma import ePicLoad, eServiceReference
+from enigma import ePicLoad, eServiceReference, eTimer
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
 from Components.Label import Label
@@ -113,12 +113,34 @@ class TV3PlayMenu(Screen):
 		self["cur"] = Label()
 		self.menulist = None
 		self.categories = None
+		self.picloads = {}
 		self.defimage = LoadPixmap(resolveFilename(SCOPE_PLUGINS,
 			"Extensions/TV3Play/icon.png"))
+		self.spinstarted = 0
+		self.spinner = {}
+		for i in range(1, 8):
+			self.spinner[i] = LoadPixmap(resolveFilename(SCOPE_PLUGINS,
+			"Extensions/TV3Play/wait%s.png" % i))
+		self.spinnerTimer = eTimer()
+		self.spinnerTimer.timeout.get().append(self.SelectionChanged)
 		self.CreateRegions()
 		if not os.path.exists(TMPDIR):
 			os.mkdir(TMPDIR)
 		self.onLayoutFinish.append(self.ShowDefPic)
+
+	def StartSpinner(self):
+		self.spinnerTimer.stop()
+		if self.spinstarted < 6:
+			self.spinstarted += 1
+		else:
+			self.spinstarted = 1
+		self["pic"].instance.setPixmap(self.spinner[self.spinstarted])
+		self.spinnerTimer.start(300, False)
+
+	def StopSpinner(self):
+		if self.spinstarted > 0:
+			self.spinstarted = 0
+			self.spinnerTimer.stop()
 
 	def CreateRegions(self):
 		content = []
@@ -135,27 +157,35 @@ class TV3PlayMenu(Screen):
 		if current[2] == "back":
 			self["cur"].setText("")
 			self.ShowDefPic()
+			self.StopSpinner()
 		else:
 			data = current[0]
 			self["cur"].setText(data)
-			imagepath = os.path.join(TMPDIR, data + ".jpg")
-			if os.path.exists(imagepath) and os.path.getsize(imagepath) > 15000:
-				sc = AVSwitch().getFramebufferScale()
-				self.picload = ePicLoad()
-				self.picload.PictureData.get().append(boundFunction(self.ShowPic))
-				self.picload.setPara((self["pic"].instance.size().width(),
-					self["pic"].instance.size().height(),
-					sc[0], sc[1], False, 0, "#00000000"))
-				self.picload.startDecode(imagepath)
+			image = os.path.join(TMPDIR, data + ".jpg")
+			if image in self.picloads:
+				self.StopSpinner()
+				if self.picloads[image] is True:
+					self.DecodePic(image)
+				else:
+					self.ShowDefPic()
 			else:
-				self.ShowDefPic()
+				self.StartSpinner()
+				
+	def DecodePic(self, image):
+		sc = AVSwitch().getFramebufferScale()
+		self.picloads[image] = ePicLoad()
+		self.picloads[image].PictureData.get().append(boundFunction(self.FinishDecode, image))
+		self.picloads[image].setPara((self["pic"].instance.size().width(),
+			self["pic"].instance.size().height(),
+			sc[0], sc[1], False, 0, "#00000000"))
+		self.picloads[image].startDecode(image)
 
-	def ShowPic(self, picInfo = None):
-		ptr = self.picload.getData()
+	def FinishDecode(self, image, picInfo = None):
+		ptr = self.picloads[image].getData()
 		if ptr:
-			print "[TV3 Play] Show image"
 			self["pic"].instance.setPixmap(ptr.__deref__())
-		del self.picload
+			del self.picloads[image]
+			self.picloads[image] = True
 
 	def Ok(self):
 		current = self["list"].getCurrent()
@@ -191,9 +221,17 @@ class TV3PlayMenu(Screen):
 			self["cur"].setText("")
 			for line in content[1:]:
 				image = os.path.join(TMPDIR, line[0] + ".jpg")
-				if not os.path.exists(image):
-					downloadPage(line[1], image)
+				if not image in self.picloads:
+					downloadPage(line[1], image)\
+						.addCallback(boundFunction(self.downloadFinished, image))\
+						.addErrback(boundFunction(self.downloadFailed, image))
 			print "[TV3 Play] Images downloaded"
+
+	def downloadFinished(self, image, result):
+		self.picloads[image] = True
+
+	def downloadFailed(self, image, result):
+		self.picloads[image] = False
 
 	def playVideo(self, videoId):
 		if "tv3latviavod" in videoId:
@@ -236,4 +274,3 @@ class TV3PlayMenu(Screen):
 				os.remove(os.path.join(TMPDIR, name))
 			os.rmdir(TMPDIR)
 		self.close()
-
