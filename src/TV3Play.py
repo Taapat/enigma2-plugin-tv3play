@@ -112,8 +112,6 @@ class TV3PlayMenu(Screen):
 		self["pic"] = Pixmap()
 		self["cur"] = Label()
 		self.menulist = None
-		self.categories = None
-		self.videos = None
 		self.storedcontent = {}
 		self.picloads = {}
 		self.defimage = LoadPixmap(resolveFilename(SCOPE_PLUGINS,
@@ -122,12 +120,11 @@ class TV3PlayMenu(Screen):
 		self.spinner = {}
 		self.spinnerTimer = eTimer()
 		self.spinnerTimer.timeout.get().append(self.SelectionChanged)
-		self.StartupSettings()
 		if not os.path.exists(TMPDIR):
 			os.mkdir(TMPDIR)
-		self.onLayoutFinish.append(self.ShowDefPic)
+		self.onLayoutFinish.append(self.LayoutFinish)
 
-	def StartupSettings(self):
+	def LayoutFinish(self):
 		for data in range(1, 8):
 			self.spinner[data] = LoadPixmap(resolveFilename(SCOPE_PLUGINS,
 			"Extensions/TV3Play/wait%s.png" % data))
@@ -139,9 +136,11 @@ class TV3PlayMenu(Screen):
 		self["list"].setList(content)
 		self["cur"].setText(content[0][0])
 		self.storedcontent["regions"] = content
+		self.ShowDefPic()
 
 	def StartSpinner(self):
-		self.spinnerTimer.stop()
+		if self.spinstarted > 0:
+			self.spinnerTimer.stop()
 		if self.spinstarted < 7:
 			self.spinstarted += 1
 		else:
@@ -161,8 +160,8 @@ class TV3PlayMenu(Screen):
 		current = self["list"].getCurrent()
 		if current[2] == "back":
 			self["cur"].setText("")
-			self.ShowDefPic()
 			self.StopSpinner()
+			self.ShowDefPic()
 		else:
 			data = current[0]
 			self["cur"].setText(data)
@@ -257,15 +256,12 @@ class TV3PlayMenu(Screen):
 
 	def playVideo(self, videoId):
 		if "tv3latviavod" in videoId:
-			url1 = videoId.split("_definst_/", 1)
-			url1 = url1[1].split(".mp4", 1)
-			url = "rtmp://tv3latviavod.deac.lv/vod//mp4:" + url1[0]
-		else:
-			url = videoId
-		ref = eServiceReference(4097, 0, url)
+			url = videoId.split("_definst_/", 1)[1].split(".mp4", 1)
+			videoId = "rtmp://tv3latviavod.deac.lv/vod//mp4:" + url[0]
+		ref = eServiceReference(4097, 0, videoId)
 		mp = self.OpenMP()
 		mp.playlist.addFile(ref)
-		print "[TV3 Play] PLAY", url
+		print "[TV3 Play] PLAY", videoId
 		mp.playServiceRefEntry(ref)
 		mp.playlist.updateList()
 		playList = mp.playlist.getServiceRefList()
