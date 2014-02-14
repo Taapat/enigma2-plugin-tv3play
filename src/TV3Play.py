@@ -119,7 +119,7 @@ class TV3PlayMenu(Screen):
 		self.spinstarted = 0
 		self.spinner = {}
 		self.spinnerTimer = eTimer()
-		self.spinnerTimer.timeout.get().append(self.SelectionChanged)
+		self.spinnerTimer.callback.append(self.SelectionChanged)
 		if not os.path.exists(TMPDIR):
 			os.mkdir(TMPDIR)
 		self.onLayoutFinish.append(self.LayoutFinish)
@@ -139,14 +139,12 @@ class TV3PlayMenu(Screen):
 		self.ShowDefPic()
 
 	def StartSpinner(self):
-		if self.spinstarted > 0:
-			self.spinnerTimer.stop()
-		if self.spinstarted < 7:
-			self.spinstarted += 1
-		else:
+		if self.spinstarted == 0:
+			self.spinnerTimer.start(300, False)
+		self.spinstarted += 1
+		if self.spinstarted == 8:
 			self.spinstarted = 1
 		self["pic"].instance.setPixmap(self.spinner[self.spinstarted])
-		self.spinnerTimer.start(300, False)
 
 	def StopSpinner(self):
 		if self.spinstarted > 0:
@@ -157,13 +155,13 @@ class TV3PlayMenu(Screen):
 		self["pic"].instance.setPixmap(self.defimage)
 
 	def SelectionChanged(self):
-		current = self["list"].getCurrent()
-		if current[2] == "back":
+		self.current = self["list"].getCurrent()
+		if self.current[2] == "back":
 			self["cur"].setText("")
 			self.StopSpinner()
 			self.ShowDefPic()
 		else:
-			data = current[0]
+			data = self.current[0]
 			self["cur"].setText(data)
 			image = os.path.join(TMPDIR, data + ".jpg")
 			if image in self.picloads:
@@ -192,8 +190,7 @@ class TV3PlayMenu(Screen):
 			self.picloads[image] = True
 
 	def Ok(self):
-		current = self["list"].getCurrent()
-		data = current[2]
+		data = self.current[2]
 		if data == "back":
 			if self.menulist == "videos":
 				stored = "categories%s" % self.categories
@@ -209,7 +206,7 @@ class TV3PlayMenu(Screen):
 				content = self.storedcontent["regions"]
 		else:
 			if not self.menulist:
-				self.region = current[0]
+				self.region = self.current[0]
 				stored = "programs%s" % self.region
 				if stored in self.storedcontent:
 					content = self.storedcontent[stored]
