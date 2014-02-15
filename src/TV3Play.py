@@ -264,6 +264,7 @@ class TV3PlayMenu(Screen):
 			else:
 				content = []
 				self.playVideo(data)
+		print "[TV3 Play] Select:", content
 		if content:
 			self["list"].setList(content)
 			self["cur"].setText("")
@@ -285,6 +286,7 @@ class TV3PlayMenu(Screen):
 			url = videoId.split("_definst_/", 1)[1].split(".mp4", 1)
 			videoId = "rtmp://tv3latviavod.deac.lv/vod//mp4:" + url[0]
 		ref = eServiceReference(4097, 0, videoId)
+		print "[TV3 Play] Play:", videoId
 		self.session.open(ChangedMoviePlayer, ref)
 
 	def Cancel(self):
