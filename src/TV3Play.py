@@ -184,13 +184,13 @@ class TV3PlayMenu(Screen):
 		self["pic"].instance.setPixmap(self.defimage)
 
 	def SelectionChanged(self):
-		self.current = self["list"].getCurrent()
-		if self.current[2] == "back":
+		current = self["list"].getCurrent()
+		if current[2] == "back":
 			self["cur"].setText("")
 			self.StopSpinner()
 			self.ShowDefPic()
 		else:
-			data = self.current[0]
+			data = current[0]
 			self["cur"].setText(data)
 			image = os.path.join(TMPDIR, data + ".jpg")
 			if image in self.picloads:
@@ -219,7 +219,9 @@ class TV3PlayMenu(Screen):
 			self.picloads[image] = True
 
 	def Ok(self):
-		data = self.current[2]
+		current = self["list"].getCurrent()
+		data = current[2]
+		print "[TV3 Play] Select:", data
 		if data == "back":
 			if self.menulist == "videos":
 				stored = "categories%s" % self.categories
@@ -235,7 +237,7 @@ class TV3PlayMenu(Screen):
 				content = self.storedcontent["regions"]
 		else:
 			if not self.menulist:
-				self.region = self.current[0]
+				self.region = current[0]
 				stored = "programs%s" % self.region
 				if stored in self.storedcontent:
 					content = self.storedcontent[stored]
@@ -264,7 +266,6 @@ class TV3PlayMenu(Screen):
 			else:
 				content = []
 				self.playVideo(data)
-		print "[TV3 Play] Select:", content
 		if content:
 			self["list"].setList(content)
 			self["cur"].setText("")
