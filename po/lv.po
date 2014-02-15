@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1\n"
 "POT-Creation-Date: 2014-02-09 14:00+0200\n"
-"PO-Revision-Date: 2014-02-09 14:00+0200\n"
+"PO-Revision-Date: 2014-02-15 19:00+0200\n"
 "Last-Translator: Tapat <taapat@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -18,6 +18,9 @@ msgstr "Labi"
 
 msgid "Return back..."
 msgstr "Atgriesties atpakaļ..."
+
+msgid "Stop playing?"
+msgstr "Pārtraukt atskaņošanu?"
 
 msgid "TV3 Play"
 msgstr "TV3 Play"

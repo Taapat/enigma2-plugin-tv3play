@@ -8,12 +8,13 @@ from Components.Label import Label
 from Components.Pixmap import Pixmap
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
+from Plugins.Plugin import PluginDescriptor
+from Screens.InfoBar import MoviePlayer
+from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 from Tools.LoadPixmap import LoadPixmap
-
-from Plugins.Extensions.MediaPlayer.plugin import MediaPlayer
 
 from . import _
 import mobileapi
@@ -31,6 +32,34 @@ REGIONS = ["tv3play.lv",
 	"tv10play.se",
 	"viasat4play.no",
 	"play.novatv.bg"]
+
+
+class ChangedMoviePlayer(MoviePlayer):
+	def __init__(self, session, service):
+		MoviePlayer.__init__(self, session, service)
+		self.skinName = "MoviePlayer"
+
+	def leavePlayer(self):
+		self.session.openWithCallback(self.leavePlayerConfirmed, 
+			MessageBox, _("Stop playing?"))
+
+	def leavePlayerConfirmed(self, answer):
+		if answer:
+			self.close()
+
+	def doEofInternal(self, playing):
+		pass
+
+	def getPluginList(self):
+		list = []
+		for p in plugins.getPlugins(where = PluginDescriptor.WHERE_EXTENSIONSMENU):
+			if p.name != _("TV3 Play"):
+				list.append(((boundFunction(self.getPluginName, p.name), 
+					boundFunction(self.runPlugin, p), lambda: True), None))
+		return list
+
+	def showMovies(self):
+		pass
 
 
 class TV3PlayAddon(object):
@@ -256,32 +285,7 @@ class TV3PlayMenu(Screen):
 			url = videoId.split("_definst_/", 1)[1].split(".mp4", 1)
 			videoId = "rtmp://tv3latviavod.deac.lv/vod//mp4:" + url[0]
 		ref = eServiceReference(4097, 0, videoId)
-		mp = self.OpenMP()
-		mp.playlist.addFile(ref)
-		print "[TV3 Play] PLAY", videoId
-		mp.playServiceRefEntry(ref)
-		mp.playlist.updateList()
-		playList = mp.playlist.getServiceRefList()
-		for i in range(0, len(playList)):
-			if playList[i] == ref:
-				mp.playlist.deleteFile(i)
-				mp.playlist.updateList()
-				break
-
-	def OpenMP(self):
-		if hasattr(self.session, "mediaplayer"):
-			mp = self.session.mediaplayer
-			try:
-				len(mp.playlist)
-			except Exception, e:
-				pass
-			else:
-				return mp
-		if isinstance(self.session.current_dialog, MediaPlayer):
-			self.session.mediaplayer = self.session.current_dialog
-		else:
-			self.session.mediaplayer = self.session.open(MediaPlayer)
-		return self.session.mediaplayer
+		self.session.open(ChangedMoviePlayer, ref)
 
 	def Cancel(self):
 		if os.path.exists(TMPDIR):
