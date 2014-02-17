@@ -70,6 +70,8 @@ class TV3PlayAddon(object):
 	def listPrograms(self):
 		content = [(_("Return back..."), None, "back")]
 		formats = self.api.getAllFormats()
+		if " Error " in formats:
+			return " Error " + formats[" Error "]
 		for series in formats:
 			title = series["title"].encode("utf-8")
 			image = str(mobileapi.IMAGE_URL % series["image"].replace(" ", "%20"))
@@ -80,6 +82,8 @@ class TV3PlayAddon(object):
 	def listCategories(self, formatId):
 		content = [(_("Return back..."), None, "back")]
 		detailed = self.api.detailed(formatId)
+		if " Error " in detailed:
+			return " Error " + detailed[" Error "]
 		for category in detailed["formatcategories"]:
 			name = category["name"].encode("utf-8")
 			image = str(mobileapi.IMAGE_URL % category["image"].replace(" ", "%20"))
@@ -90,6 +94,8 @@ class TV3PlayAddon(object):
 	def listVideos(self, category):
 		content = [(_("Return back..."), None, "back")]
 		videos = self.api.getVideos(category)
+		if " Error " in videos:
+			return " Error " + videos[" Error "]
 		for video in videos:
 			title = video["title"].encode("utf-8")
 			image = str(mobileapi.IMAGE_URL % video["image"].replace(" ", "%20"))
@@ -220,6 +226,24 @@ class TV3PlayMenu(Screen):
 
 	def Ok(self):
 		current = self["list"].getCurrent()
+		content = self.getContent(current)
+		if content:
+			self["list"].setList(content)
+			self["cur"].setText("")
+			for line in content[1:]:
+				image = os.path.join(TMPDIR, line[0] + ".jpg")
+				if not image in self.picloads:
+					downloadPage(line[1], image)\
+						.addCallback(boundFunction(self.downloadFinished, image))\
+						.addErrback(boundFunction(self.downloadFailed, image))
+
+	def downloadFinished(self, image, result):
+		self.picloads[image] = True
+
+	def downloadFailed(self, image, result):
+		self.picloads[image] = False
+
+	def getContent(self, current):
 		data = current[2]
 		print "[TV3 Play] Select:", data
 		if data == "back":
@@ -243,6 +267,8 @@ class TV3PlayMenu(Screen):
 					content = self.storedcontent[stored]
 				else:
 					content = (TV3PlayAddon(self.region).listPrograms())
+					if self.isError(content):
+						return None
 					self.storedcontent[stored] = content
 				self.menulist = "programs"
 			elif self.menulist == "programs":
@@ -251,6 +277,8 @@ class TV3PlayMenu(Screen):
 					content = self.storedcontent[stored]
 				else:
 					content = (TV3PlayAddon(self.region).listCategories(data))
+					if self.isError(content):
+						return None
 					self.categories = data
 					self.storedcontent["categories%s" % data] = content
 				self.menulist = "categories"
@@ -260,31 +288,26 @@ class TV3PlayMenu(Screen):
 					content = self.storedcontent[stored]
 				else:
 					content = (TV3PlayAddon(self.region).listVideos(data))
+					if self.isError(content):
+						return None
 					self.videos = data
 					self.storedcontent["videos%s" % data] = content
 				self.menulist = "videos"
 			else:
-				content = []
+				content = None
 				self.playVideo(data)
-		if content:
-			self["list"].setList(content)
-			self["cur"].setText("")
-			for line in content[1:]:
-				image = os.path.join(TMPDIR, line[0] + ".jpg")
-				if not image in self.picloads:
-					downloadPage(line[1], image)\
-						.addCallback(boundFunction(self.downloadFinished, image))\
-						.addErrback(boundFunction(self.downloadFailed, image))
+		return content
 
-	def downloadFinished(self, image, result):
-		self.picloads[image] = True
-
-	def downloadFailed(self, image, result):
-		self.picloads[image] = False
+	def isError(self, content):
+		if content[:7] == " Error ":
+			self.session.open(MessageBox, content, MessageBox.TYPE_INFO)
+			return True
+		else:
+			return False
 
 	def playVideo(self, videoId):
 		if "tv3latviavod" in videoId:
-			url = videoId.split("_definst_/", 1)[1].split(".mp4", 1)
+			url = videoId.split("_definst_/", 1)[1].split("/playlist.m3", 1)
 			videoId = "rtmp://tv3latviavod.deac.lv/vod//mp4:" + url[0]
 		ref = eServiceReference(4097, 0, videoId)
 		print "[TV3 Play] Play:", videoId

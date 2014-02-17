@@ -18,9 +18,9 @@
 #  http://www.gnu.org/copyleft/gpl.html
 #
 try:
-    import json
+	import json
 except:
-    import simplejson as json
+	import simplejson as json
 import urllib2
 import urllib
 
@@ -32,76 +32,56 @@ VIASTREAM_URL = 'http://viastream.viasat.tv/%s'
 
 
 class TV3PlayMobileApi(object):
-    def __init__(self, region):
-        self.region = region
+	def __init__(self, region):
+		self.region = region
 
-    def getAllFormats(self):
-        formats = list()
+	def getAllFormats(self):
+		formats = list()
+		f = self.format()
+		if f:
+			if ' Error ' in f:
+				return f
+			for section in f['sections']:
+				formats.extend(section['formats'])
+		return formats
 
-        f = self.format()
-        if f:
-            for section in f['sections']:
-                formats.extend(section['formats'])
+	def getVideos(self, category):
+		return self._call_api('formatcategory/%s/video' % category)
 
-        return formats
+	def format(self):
+		return self._call_api('format')
 
-    def getVideos(self, category):
-        return self._call_api('formatcategory/%s/video' % category)
+	def detailed(self, formatId):
+		return self._call_api('detailed', {'formatid': formatId})
 
-    def getMobileStream(self, videoId):
-        return self._call_api(VIASTREAM_URL % ('MobileStream/%s' % videoId))
+	def _call_api(self, url, params = None):
+		if url[0:4] != 'http':
+			url = API_URL % (self.region, url)
 
-    def getMobileData(self, videoId):
-        return self._call_api(VIASTREAM_URL % ('MobileData/%s' % videoId))
+		if params:
+			url += '?' + urllib.urlencode(params)
 
-    def format(self):
-        """
-        :rtype : dict
-        """
-        return self._call_api('format')
+		content = self._http_request(url)
 
-    def detailed(self, formatId):
-        return self._call_api('detailed', {'formatid': formatId})
+		if content:
+			if ' Error ' in content:
+				return content
+			try:
+				return json.loads(content)
+			except Exception, ex:
+				return {" Error " : "in call_api: %s" % ex}
+		else:
+			return []
 
-    def featured(self):
-        return self._call_api('featured')
-
-    def mostviewed(self):
-        return self._call_api('mostviewed')
-
-    def _call_api(self, url, params=None):
-        if url[0:4] != 'http':
-            url = API_URL % (self.region, url)
-
-        if params:
-            url += '?' + urllib.urlencode(params)
-
-        #print "Calling API: " + url
-
-        content = self._http_request(url)
-        #print "content =", content
-
-        if content is not None and content != '':
-            try:
-                return json.loads(content)
-            except Exception, ex:
-                raise TV3PlayMobileApiException(ex)
-        else:
-            return []
-
-    def _http_request(self, url):
-        try:
-            r = urllib2.Request(url, headers={
-                'user-agent': IPAD_USERAGENT
-            })
-            u = urllib2.urlopen(r)
-            content = u.read()
-            u.close()
-            return content
-        except Exception as ex:
-            raise TV3PlayMobileApiException(ex)
-
-
-class TV3PlayMobileApiException(Exception):
-    pass
+	def _http_request(self, url):
+		try:
+			r = urllib2.Request(url, headers={
+				'user-agent': IPAD_USERAGENT
+			})
+			u = urllib2.urlopen(r)
+			content = u.read()
+			u.close()
+			return content
+		except Exception as ex:
+			return {" Error " : "in http_request: %s" % ex}
 
