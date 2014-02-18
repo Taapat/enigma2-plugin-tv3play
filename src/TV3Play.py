@@ -256,9 +256,8 @@ class TV3PlayMenu(Screen):
 				content = self.storedcontent[stored]
 				self.menulist = "programs"
 			else:
-				content = []
-				self.menulist = None
 				content = self.storedcontent["regions"]
+				self.menulist = None
 		else:
 			if not self.menulist:
 				self.region = current[0]
