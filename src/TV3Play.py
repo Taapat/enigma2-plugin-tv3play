@@ -40,7 +40,7 @@ class ChangedMoviePlayer(MoviePlayer):
 		self.skinName = "MoviePlayer"
 
 	def leavePlayer(self):
-		self.session.openWithCallback(self.leavePlayerConfirmed, 
+		self.session.openWithCallback(self.leavePlayerConfirmed,
 			MessageBox, _("Stop playing?"))
 
 	def leavePlayerConfirmed(self, answer):
@@ -51,10 +51,11 @@ class ChangedMoviePlayer(MoviePlayer):
 		pass
 
 	def getPluginList(self):
+		from Components.PluginComponent import plugins
 		list = []
 		for p in plugins.getPlugins(where = PluginDescriptor.WHERE_EXTENSIONSMENU):
 			if p.name != _("TV3 Play"):
-				list.append(((boundFunction(self.getPluginName, p.name), 
+				list.append(((boundFunction(self.getPluginName, p.name),
 					boundFunction(self.runPlugin, p), lambda: True), None))
 		return list
 
@@ -207,7 +208,7 @@ class TV3PlayMenu(Screen):
 					self.ShowDefPic()
 			else:
 				self.StartSpinner()
-				
+
 	def DecodePic(self, image):
 		sc = AVSwitch().getFramebufferScale()
 		self.picloads[image] = ePicLoad()
