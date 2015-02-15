@@ -306,9 +306,9 @@ class TV3PlayMenu(Screen):
 			return False
 
 	def playVideo(self, videoId):
-		if "tv3latviavod" in videoId:
-			url = videoId.split("_definst_/", 1)[1].split("/playlist.m3", 1)
-			videoId = "rtmp://tv3latviavod.deac.lv/vod//mp4:" + url[0]
+		#if "tv3latviavod" in videoId:
+			#url = videoId.split("_definst_/", 1)[1].split("/playlist.m3", 1)
+			#videoId = "rtmp://tv3latviavod.deac.lv/vod//mp4:" + url[0]
 		ref = eServiceReference(4097, 0, videoId)
 		print "[TV3 Play] Play:", videoId
 		self.session.open(ChangedMoviePlayer, ref)
