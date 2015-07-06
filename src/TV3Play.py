@@ -34,7 +34,7 @@ REGIONS = ["tv3play.lv",
 	"play.novatv.bg"]
 
 
-class ChangedMoviePlayer(MoviePlayer):
+class TV3Player(MoviePlayer):
 	def __init__(self, session, service):
 		MoviePlayer.__init__(self, session, service)
 		self.skinName = "MoviePlayer"
@@ -312,7 +312,7 @@ class TV3PlayMenu(Screen):
 		ref = eServiceReference(4097, 0, current[2])
 		ref.setName(current[0])
 		print "[TV3 Play] Play:", current[2]
-		self.session.open(ChangedMoviePlayer, ref)
+		self.session.open(TV3Player, ref)
 
 	def Cancel(self):
 		if os.path.exists(TMPDIR):
