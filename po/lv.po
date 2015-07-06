@@ -1,0 +1,27 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: 1\n"
+"POT-Creation-Date: 2014-02-09 14:00+0200\n"
+"PO-Revision-Date: 2014-02-09 14:00+0200\n"
+"Last-Translator: Tapat <taapat@gmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.5\n"
+
+msgid "Exit"
+msgstr "Iziet"
+
+msgid "Ok"
+msgstr "Labi"
+
+msgid "Return back..."
+msgstr "Atgriesties atpakaļ..."
+
+msgid "TV3 Play"
+msgstr "TV3 Play"
+
+msgid "Watch TV3 play online services"
+msgstr "Skatieties TV3 play interneta servisus"
+
