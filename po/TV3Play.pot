@@ -1,36 +1,42 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 1\n"
-"POT-Creation-Date: 2014-02-09 14:00+0200\n"
-"PO-Revision-Date: 2014-02-15 19:00+0200\n"
-"Last-Translator: Tapat <taapat@gmail.com>\n"
-"Language-Team: \n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-07-06 21:38+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.5\n"
 
-#: src/TV3Play.py:130
+#: TV3Play.py:137
 msgid "Exit"
 msgstr ""
 
-#: src/TV3Play.py:131
+#: TV3Play.py:138
 msgid "Ok"
 msgstr ""
 
-#: src/TV3Play.py:71;81;91
+#: TV3Play.py:72 TV3Play.py:84 TV3Play.py:96
 msgid "Return back..."
 msgstr ""
 
-#: src/TV3Play.py:44
+#: TV3Play.py:44
 msgid "Stop playing?"
 msgstr ""
 
-#: src/plugin.py:11;src/TV3Play.py:128
+#: plugin.py:11 TV3Play.py:57 TV3Play.py:135
 msgid "TV3 Play"
 msgstr ""
 
-#: src/plugin.py:12
+#: plugin.py:12
 msgid "Watch TV3 play online services"
 msgstr ""
-
