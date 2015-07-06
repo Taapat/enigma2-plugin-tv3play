@@ -295,7 +295,7 @@ class TV3PlayMenu(Screen):
 				self.menulist = "videos"
 			else:
 				content = None
-				self.playVideo(data)
+				self.playVideo(current)
 		return content
 
 	def isError(self, content):
@@ -305,12 +305,13 @@ class TV3PlayMenu(Screen):
 		else:
 			return False
 
-	def playVideo(self, videoId):
+	def playVideo(self, current):
 		#if "tv3latviavod" in videoId:
 			#url = videoId.split("_definst_/", 1)[1].split("/playlist.m3", 1)
 			#videoId = "rtmp://tv3latviavod.deac.lv/vod//mp4:" + url[0]
-		ref = eServiceReference(4097, 0, videoId)
-		print "[TV3 Play] Play:", videoId
+		ref = eServiceReference(4097, 0, current[2])
+		ref.setName(current[0])
+		print "[TV3 Play] Play:", current[2]
 		self.session.open(ChangedMoviePlayer, ref)
 
 	def Cancel(self):
