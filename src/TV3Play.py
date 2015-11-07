@@ -48,7 +48,7 @@ class TV3Player(MoviePlayer):
 			self.close()
 
 	def doEofInternal(self, playing):
-		pass
+		self.close()
 
 	def getPluginList(self):
 		from Components.PluginComponent import plugins
