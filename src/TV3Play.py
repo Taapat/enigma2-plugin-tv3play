@@ -9,7 +9,7 @@ from Components.Pixmap import Pixmap
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
 from Plugins.Plugin import PluginDescriptor
-from Screens.InfoBar import MoviePlayer
+from Screens.InfoBar import InfoBar, MoviePlayer
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
@@ -38,6 +38,7 @@ class TV3Player(MoviePlayer):
 	def __init__(self, session, service):
 		MoviePlayer.__init__(self, session, service)
 		self.skinName = "MoviePlayer"
+		self.servicelist = InfoBar.instance and InfoBar.instance.servicelist
 
 	def leavePlayer(self):
 		self.session.openWithCallback(self.leavePlayerConfirmed,
