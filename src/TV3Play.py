@@ -62,6 +62,10 @@ class TV3Player(MoviePlayer):
 	def showMovies(self):
 		pass
 
+	def openServiceList(self):
+		if hasattr(self, "toggleShow"):
+			self.toggleShow()
+
 
 class TV3PlayAddon(object):
 	def __init__(self, region):
