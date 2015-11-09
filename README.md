@@ -2,6 +2,15 @@ TV3Play
 =========
 Enigma2 plugin to watch TV3 play online services
 
+Depends
+-------
+python-json python-netclient python-twisted-web
+
+Download
+-------
+[enigma2-plugin-tv3play](http://taapat.ho.ua/enigma2-plugin-tv3play/)
+
+Screenshots
 -------
 ![](https://cloud.githubusercontent.com/assets/1623947/8530480/f2517c2e-2429-11e5-8194-9ff5cd631302.jpg)
 
