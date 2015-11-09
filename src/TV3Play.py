@@ -113,9 +113,8 @@ class TV3PlayAddon(object):
 
 class TV3PlayMenu(Screen):
 	skin = """
-		<screen position="center,center" size="630,370">
-			<eLabel position="5,0" size="620,2" backgroundColor="#aaaaaa" />
-			<widget source="list" render="Listbox" position="10,15" size="360,300" \
+		<screen position="center,center" size="640,370">
+			<widget source="list" render="Listbox" position="10,10" size="360,300" \
 				scrollbarMode="showOnDemand" >
 				<convert type="TemplatedMultiContent" >
 				{
@@ -126,7 +125,7 @@ class TV3PlayMenu(Screen):
 				}
 				</convert>
 			</widget>
-			<widget name="pic" position="380,15" size="250,141" alphatest="on" />
+			<widget name="pic" position="380,10" size="250,141" alphatest="on" />
 			<widget name="cur" position="380,160" size="250,160" halign="center" font="Regular;22" />
 			<widget name="red" position="114,321" size="140,40" pixmap="skin_default/buttons/red.png" \
 				transparent="1" alphatest="on" />
