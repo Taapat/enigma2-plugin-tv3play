@@ -20,7 +20,7 @@ from . import _
 import mobileapi
 
 
-IMAGE_URL = 'http://play.pdl.viaplay.com/imagecache/1280x720/%s'
+IMAGE_URL = 'http://play.pdl.viaplay.com/imagecache/290x162/%s'
 TMPDIR = "/tmp/tv3play/"
 REGIONS = ["tv3play.lv",
 	"tv3play.lt",
