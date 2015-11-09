@@ -17,12 +17,10 @@
 #  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 #  http://www.gnu.org/copyleft/gpl.html
 #
-try:
-	import json
-except:
-	import simplejson as json
-import urllib2
-import urllib
+
+from json import loads
+from urllib2 import Request, urlopen
+from urllib import urlencode
 
 
 class TV3PlayMobileApi(object):
@@ -53,7 +51,7 @@ class TV3PlayMobileApi(object):
 			url = ' http://%s/mobileapi/%s' % (self.region, url)
 
 		if params:
-			url += '?' + urllib.urlencode(params)
+			url += '?' + urlencode(params)
 
 		content = self._http_request(url)
 
@@ -61,7 +59,7 @@ class TV3PlayMobileApi(object):
 			if ' Error ' in content:
 				return content
 			try:
-				return json.loads(content)
+				return loads(content)
 			except Exception, ex:
 				return {" Error " : "in call_api: %s" % ex}
 		else:
@@ -69,10 +67,10 @@ class TV3PlayMobileApi(object):
 
 	def _http_request(self, url):
 		try:
-			r = urllib2.Request(url, headers={
+			r = Request(url, headers={
 					'user-agent': 'TV3 Play/1.0.3 CFNetwork/548.0.4 Darwin/11.0.0'
 				})
-			u = urllib2.urlopen(r)
+			u = urlopen(r)
 			content = u.read()
 			u.close()
 			return content
