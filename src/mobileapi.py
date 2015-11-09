@@ -24,11 +24,6 @@ except:
 import urllib2
 import urllib
 
-IPAD_USERAGENT = 'TV3 Play/1.0.3 CFNetwork/548.0.4 Darwin/11.0.0'
-
-API_URL = ' http://%s/mobileapi/%s'
-VIASTREAM_URL = 'http://viastream.viasat.tv/%s'
-
 
 class TV3PlayMobileApi(object):
 	def __init__(self, region):
@@ -55,7 +50,7 @@ class TV3PlayMobileApi(object):
 
 	def _call_api(self, url, params = None):
 		if url[0:4] != 'http':
-			url = API_URL % (self.region, url)
+			url = ' http://%s/mobileapi/%s' % (self.region, url)
 
 		if params:
 			url += '?' + urllib.urlencode(params)
@@ -75,8 +70,8 @@ class TV3PlayMobileApi(object):
 	def _http_request(self, url):
 		try:
 			r = urllib2.Request(url, headers={
-				'user-agent': IPAD_USERAGENT
-			})
+					'user-agent': 'TV3 Play/1.0.3 CFNetwork/548.0.4 Darwin/11.0.0'
+				})
 			u = urllib2.urlopen(r)
 			content = u.read()
 			u.close()
