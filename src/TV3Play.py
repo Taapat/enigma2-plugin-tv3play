@@ -20,6 +20,7 @@ from . import _
 import mobileapi
 
 
+IMAGE_URL = 'http://play.pdl.viaplay.com/imagecache/1280x720/%s'
 TMPDIR = "/tmp/tv3play/"
 REGIONS = ["tv3play.lv",
 	"tv3play.lt",
@@ -80,7 +81,7 @@ class TV3PlayAddon(object):
 			return " Error " + formats[" Error "]
 		for series in formats:
 			title = series["title"].encode("utf-8")
-			image = str(mobileapi.IMAGE_URL % series["image"].replace(" ", "%20"))
+			image = str(IMAGE_URL % series["image"].replace(" ", "%20"))
 			contentid = series["id"]
 			content.append((title, image, contentid))
 		return content
@@ -92,7 +93,7 @@ class TV3PlayAddon(object):
 			return " Error " + detailed[" Error "]
 		for category in detailed["formatcategories"]:
 			name = category["name"].encode("utf-8")
-			image = str(mobileapi.IMAGE_URL % category["image"].replace(" ", "%20"))
+			image = str(IMAGE_URL % category["image"].replace(" ", "%20"))
 			contentid = category["id"]
 			content.append((name, image, contentid))
 		return content
@@ -104,7 +105,7 @@ class TV3PlayAddon(object):
 			return " Error " + videos[" Error "]
 		for video in videos:
 			title = video["title"].encode("utf-8")
-			image = str(mobileapi.IMAGE_URL % video["image"].replace(" ", "%20"))
+			image = str(IMAGE_URL % video["image"].replace(" ", "%20"))
 			hlspath = str(video["hlspath"])
 			content.append((title, image, hlspath))
 		return content
