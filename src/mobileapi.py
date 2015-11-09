@@ -29,7 +29,7 @@ class TV3PlayMobileApi(object):
 
 	def getAllFormats(self):
 		formats = list()
-		f = self.format()
+		f = self._call_api('format')
 		if f:
 			if ' Error ' in f:
 				return f
@@ -39,9 +39,6 @@ class TV3PlayMobileApi(object):
 
 	def getVideos(self, category):
 		return self._call_api('formatcategory/%s/video' % category)
-
-	def format(self):
-		return self._call_api('format')
 
 	def detailed(self, formatId):
 		return self._call_api('detailed', {'formatid': formatId})
