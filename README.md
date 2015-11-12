@@ -5,6 +5,7 @@ Enigma2 plugin to watch TV3 play online services
 Depends
 -------
 python-json python-netclient python-twisted-web
+ twisted need also python-compression
 
 Download
 -------
