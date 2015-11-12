@@ -127,9 +127,9 @@ class TV3PlayMenu(Screen):
 			</widget>
 			<widget name="pic" position="380,10" size="250,141" alphatest="on" />
 			<widget name="cur" position="380,160" size="250,160" halign="center" font="Regular;22" />
-			<widget name="red" position="114,321" size="140,40" pixmap="skin_default/buttons/red.png" \
+			<ePixmap position="114,321" size="140,40" pixmap="skin_default/buttons/red.png" \
 				transparent="1" alphatest="on" />
-			<widget name="green" position="378,321" size="140,40" pixmap="skin_default/buttons/green.png" \
+			<ePixmap position="378,321" size="140,40" pixmap="skin_default/buttons/green.png" \
 				transparent="1" alphatest="on" />
 			<widget source="key_red" render="Label" position="110,328" zPosition="2" size="148,30" \
 				valign="center" halign="center" font="Regular;22" transparent="1" />
@@ -141,8 +141,6 @@ class TV3PlayMenu(Screen):
 		Screen.__init__(self, session)
 		self.setTitle(_("TV3 Play"))
 		self.session = session
-		self["red"] = Pixmap()
-		self["green"] = Pixmap()
 		self["key_red"] = StaticText(_("Exit"))
 		self["key_green"] = StaticText(_("Ok"))
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions"],
