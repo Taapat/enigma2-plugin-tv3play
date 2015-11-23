@@ -21,30 +21,30 @@ from Tools.LoadPixmap import LoadPixmap
 from . import _
 
 
-IMAGE_URL = "http://play.pdl.viaplay.com/imagecache/290x162/%s"
-TMPDIR = "/tmp/tv3play/"
-REGIONS = ["tv3play.lv",
-	"tv3play.lt",
-	"tv3play.ee",
-	"tv3play.se",
-	"tv3play.dk",
-	"tv3play.no",
-	"tv6play.se",
-	"tv8play.se",
-	"tv10play.se",
-	"viasat4play.no",
-	"play.novatv.bg"]
+IMAGE_URL = 'http://play.pdl.viaplay.com/imagecache/290x162/%s'
+TMPDIR = '/tmp/tv3play/'
+REGIONS = ['tv3play.lv',
+	'tv3play.lt',
+	'tv3play.ee',
+	'tv3play.se',
+	'tv3play.dk',
+	'tv3play.no',
+	'tv6play.se',
+	'tv8play.se',
+	'tv10play.se',
+	'viasat4play.no',
+	'play.novatv.bg']
 
 
 class TV3Player(MoviePlayer):
 	def __init__(self, session, service):
 		MoviePlayer.__init__(self, session, service)
-		self.skinName = "MoviePlayer"
+		self.skinName = 'MoviePlayer'
 		self.servicelist = InfoBar.instance and InfoBar.instance.servicelist
 
 	def leavePlayer(self):
 		self.session.openWithCallback(self.leavePlayerConfirmed,
-			MessageBox, _("Stop playing?"))
+			MessageBox, _('Stop playing?'))
 
 	def leavePlayerConfirmed(self, answer):
 		if answer:
@@ -57,7 +57,7 @@ class TV3Player(MoviePlayer):
 		from Components.PluginComponent import plugins
 		list = []
 		for p in plugins.getPlugins(where = PluginDescriptor.WHERE_EXTENSIONSMENU):
-			if p.name != _("TV3 Play"):
+			if p.name != _('TV3 Play'):
 				list.append(((boundFunction(self.getPluginName, p.name),
 					boundFunction(self.runPlugin, p), lambda: True), None))
 		return list
@@ -66,7 +66,7 @@ class TV3Player(MoviePlayer):
 		pass
 
 	def openServiceList(self):
-		if hasattr(self, "toggleShow"):
+		if hasattr(self, 'toggleShow'):
 			self.toggleShow()
 
 
@@ -98,27 +98,27 @@ class TV3PlayMenu(Screen):
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
-		self.setTitle(_("TV3 Play"))
+		self.setTitle(_('TV3 Play'))
 		self.session = session
-		self["key_red"] = StaticText(_("Exit"))
-		self["key_green"] = StaticText(_("Ok"))
-		self["actions"] = ActionMap(["OkCancelActions", "ColorActions"],
+		self['key_red'] = StaticText(_('Exit'))
+		self['key_green'] = StaticText(_('Ok'))
+		self['actions'] = ActionMap(['OkCancelActions', 'ColorActions'],
 			{
-				"cancel": self.Cancel,
-				"ok": self.Ok,
-				"green": self.Ok,
-				"red": self.Cancel,
+				'cancel': self.Cancel,
+				'ok': self.Ok,
+				'green': self.Ok,
+				'red': self.Cancel,
 			})
-		self["list"] = List([])
-		self["list"].onSelectionChanged.append(self.SelectionChanged)
-		self["pic"] = Pixmap()
-		self["cur"] = Label()
+		self['list'] = List([])
+		self['list'].onSelectionChanged.append(self.SelectionChanged)
+		self['pic'] = Pixmap()
+		self['cur'] = Label()
 		self.menulist = None
 		self.region = REGIONS[0]
 		self.storedcontent = {}
 		self.picloads = {}
 		self.defimage = LoadPixmap(resolveFilename(SCOPE_PLUGINS,
-			"Extensions/TV3Play/icon.png"))
+			'Extensions/TV3Play/icon.png'))
 		self.spinstarted = 0
 		self.spinner = {}
 		self.spinnerTimer = eTimer()
@@ -130,15 +130,15 @@ class TV3PlayMenu(Screen):
 	def LayoutFinish(self):
 		for data in range(1, 8):
 			self.spinner[data] = LoadPixmap(resolveFilename(SCOPE_PLUGINS,
-			"Extensions/TV3Play/wait%s.png" % data))
+			'Extensions/TV3Play/wait%s.png' % data))
 		content = []
 		for data in REGIONS:
 			content.append((data, None, None))
-			image = os.path.join(TMPDIR, data + ".jpg")
+			image = os.path.join(TMPDIR, data + '.jpg')
 			self.picloads[image] = False
-		self["list"].setList(content)
-		self["cur"].setText(content[0][0])
-		self.storedcontent["regions"] = content
+		self['list'].setList(content)
+		self['cur'].setText(content[0][0])
+		self.storedcontent['regions'] = content
 		self.ShowDefPic()
 
 	def StartSpinner(self):
@@ -147,7 +147,7 @@ class TV3PlayMenu(Screen):
 		self.spinstarted += 1
 		if self.spinstarted == 8:
 			self.spinstarted = 1
-		self["pic"].instance.setPixmap(self.spinner[self.spinstarted])
+		self['pic'].instance.setPixmap(self.spinner[self.spinstarted])
 
 	def StopSpinner(self):
 		if self.spinstarted > 0:
@@ -155,18 +155,18 @@ class TV3PlayMenu(Screen):
 			self.spinnerTimer.stop()
 
 	def ShowDefPic(self):
-		self["pic"].instance.setPixmap(self.defimage)
+		self['pic'].instance.setPixmap(self.defimage)
 
 	def SelectionChanged(self):
-		current = self["list"].getCurrent()
-		if current[2] == "back":
-			self["cur"].setText("")
+		current = self['list'].getCurrent()
+		if current[2] == 'back':
+			self['cur'].setText('')
 			self.StopSpinner()
 			self.ShowDefPic()
 		else:
 			data = current[0]
-			self["cur"].setText(data)
-			image = os.path.join(TMPDIR, data + ".jpg")
+			self['cur'].setText(data)
+			image = os.path.join(TMPDIR, data + '.jpg')
 			if image in self.picloads:
 				self.StopSpinner()
 				if self.picloads[image] is True:
@@ -180,25 +180,25 @@ class TV3PlayMenu(Screen):
 		sc = AVSwitch().getFramebufferScale()
 		self.picloads[image] = ePicLoad()
 		self.picloads[image].PictureData.get().append(boundFunction(self.FinishDecode, image))
-		self.picloads[image].setPara((self["pic"].instance.size().width(),
-			self["pic"].instance.size().height(),
-			sc[0], sc[1], False, 0, "#00000000"))
+		self.picloads[image].setPara((self['pic'].instance.size().width(),
+			self['pic'].instance.size().height(),
+			sc[0], sc[1], False, 0, '#00000000'))
 		self.picloads[image].startDecode(image)
 
 	def FinishDecode(self, image, picInfo = None):
 		ptr = self.picloads[image].getData()
 		if ptr:
-			self["pic"].instance.setPixmap(ptr.__deref__())
+			self['pic'].instance.setPixmap(ptr.__deref__())
 			self.picloads[image] = True
 
 	def Ok(self):
-		current = self["list"].getCurrent()
+		current = self['list'].getCurrent()
 		content = self.getContent(current)
 		if content:
-			self["list"].setList(content)
-			self["cur"].setText("")
+			self['list'].setList(content)
+			self['cur'].setText('')
 			for line in content[1:]:
-				image = os.path.join(TMPDIR, line[0] + ".jpg")
+				image = os.path.join(TMPDIR, line[0] + '.jpg')
 				if not image in self.picloads:
 					downloadPage(line[1], image)\
 						.addCallback(boundFunction(self.downloadFinished, image))\
@@ -212,23 +212,23 @@ class TV3PlayMenu(Screen):
 
 	def getContent(self, current):
 		data = current[2]
-		print "[TV3 Play] Select:", data
-		if data == "back":
-			if self.menulist == "videos":
-				stored = "categories%s" % self.categories
+		print '[TV3 Play] Select:', data
+		if data == 'back':
+			if self.menulist == 'videos':
+				stored = 'categories%s' % self.categories
 				content = self.storedcontent[stored]
-				self.menulist = "categories"
-			elif self.menulist == "categories":
-				stored = "programs%s" % self.region
+				self.menulist = 'categories'
+			elif self.menulist == 'categories':
+				stored = 'programs%s' % self.region
 				content = self.storedcontent[stored]
-				self.menulist = "programs"
+				self.menulist = 'programs'
 			else:
-				content = self.storedcontent["regions"]
+				content = self.storedcontent['regions']
 				self.menulist = None
 		else:
 			if not self.menulist:
 				self.region = current[0]
-				stored = "programs%s" % self.region
+				stored = 'programs%s' % self.region
 				if stored in self.storedcontent:
 					content = self.storedcontent[stored]
 				else:
@@ -236,9 +236,9 @@ class TV3PlayMenu(Screen):
 					if not content:
 						return None
 					self.storedcontent[stored] = content
-				self.menulist = "programs"
-			elif self.menulist == "programs":
-				stored = "categories%s" % data
+				self.menulist = 'programs'
+			elif self.menulist == 'programs':
+				stored = 'categories%s' % data
 				if stored in self.storedcontent:
 					content = self.storedcontent[stored]
 				else:
@@ -246,10 +246,10 @@ class TV3PlayMenu(Screen):
 					if not content:
 						return None
 					self.categories = data
-					self.storedcontent["categories%s" % data] = content
-				self.menulist = "categories"
-			elif self.menulist == "categories":
-				stored = "videos%s" % data
+					self.storedcontent['categories%s' % data] = content
+				self.menulist = 'categories'
+			elif self.menulist == 'categories':
+				stored = 'videos%s' % data
 				if stored in self.storedcontent:
 					content = self.storedcontent[stored]
 				else:
@@ -257,8 +257,8 @@ class TV3PlayMenu(Screen):
 					if not content:
 						return None
 					self.videos = data
-					self.storedcontent["videos%s" % data] = content
-				self.menulist = "videos"
+					self.storedcontent['videos%s' % data] = content
+				self.menulist = 'videos'
 			else:
 				content = None
 				self.playVideo(current)
@@ -338,11 +338,11 @@ class TV3PlayMenu(Screen):
 			return None
 
 	def playVideo(self, current):
-		#if "tv3latviavod" in videoId:
-			#url = videoId.split("_definst_/", 1)[1].split("/playlist.m3", 1)
-			#videoId = "rtmp://tv3latviavod.deac.lv/vod//mp4:" + url[0]
+		#if 'tv3latviavod' in videoId:
+			#url = videoId.split('_definst_/', 1)[1].split('/playlist.m3', 1)
+			#videoId = 'rtmp://tv3latviavod.deac.lv/vod//mp4:' + url[0]
 		ref = eServiceReference(4097, 0, current[2])
 		ref.setName(current[0])
-		print "[TV3 Play] Play:", current[2]
+		print '[TV3 Play] Play:', current[2]
 		self.session.open(TV3Player, ref)
 
