@@ -295,7 +295,7 @@ class TV3PlayMenu(Screen):
 		detailed = self.callApi('detailed?formatid=%s' % formatId)
 		if detailed:
 			content = []
-			for category in detailed['formatcategories']:
+			for category in detailed.get('formatcategories', []):
 				try:
 					name = category['name'].encode('utf-8')
 					image = str(IMAGE_URL % category['image'].replace(' ', '%20'))
