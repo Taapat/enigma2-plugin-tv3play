@@ -1,5 +1,7 @@
 import os
+from json import loads
 from twisted.web.client import downloadPage
+from urllib2 import Request, urlopen
 
 from enigma import ePicLoad, eServiceReference, eTimer
 from Components.ActionMap import ActionMap
@@ -17,7 +19,6 @@ from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 from Tools.LoadPixmap import LoadPixmap
 
 from . import _
-import mobileapi
 
 
 IMAGE_URL = "http://play.pdl.viaplay.com/imagecache/290x162/%s"
@@ -69,48 +70,6 @@ class TV3Player(MoviePlayer):
 			self.toggleShow()
 
 
-class TV3PlayAddon(object):
-	def __init__(self, region):
-		self.region = region
-		self.api = mobileapi.TV3PlayMobileApi(region)
-
-	def listPrograms(self):
-		content = [(_("Return back..."), None, "back")]
-		formats = self.api.getAllFormats()
-		if " Error " in formats:
-			return " Error " + formats[" Error "]
-		for series in formats:
-			title = series["title"].encode("utf-8")
-			image = str(IMAGE_URL % series["image"].replace(" ", "%20"))
-			contentid = series["id"]
-			content.append((title, image, contentid))
-		return content
-
-	def listCategories(self, formatId):
-		content = [(_("Return back..."), None, "back")]
-		detailed = self.api.detailed(formatId)
-		if " Error " in detailed:
-			return " Error " + detailed[" Error "]
-		for category in detailed["formatcategories"]:
-			name = category["name"].encode("utf-8")
-			image = str(IMAGE_URL % category["image"].replace(" ", "%20"))
-			contentid = category["id"]
-			content.append((name, image, contentid))
-		return content
-
-	def listVideos(self, category):
-		content = [(_("Return back..."), None, "back")]
-		videos = self.api.getVideos(category)
-		if " Error " in videos:
-			return " Error " + videos[" Error "]
-		for video in videos:
-			title = video["title"].encode("utf-8")
-			image = str(IMAGE_URL % video["image"].replace(" ", "%20"))
-			hlspath = str(video["hlspath"])
-			content.append((title, image, hlspath))
-		return content
-
-
 class TV3PlayMenu(Screen):
 	skin = """
 		<screen position="center,center" size="640,370">
@@ -155,6 +114,7 @@ class TV3PlayMenu(Screen):
 		self["pic"] = Pixmap()
 		self["cur"] = Label()
 		self.menulist = None
+		self.region = REGIONS[0]
 		self.storedcontent = {}
 		self.picloads = {}
 		self.defimage = LoadPixmap(resolveFilename(SCOPE_PLUGINS,
@@ -229,7 +189,6 @@ class TV3PlayMenu(Screen):
 		ptr = self.picloads[image].getData()
 		if ptr:
 			self["pic"].instance.setPixmap(ptr.__deref__())
-			del self.picloads[image]
 			self.picloads[image] = True
 
 	def Ok(self):
@@ -273,8 +232,8 @@ class TV3PlayMenu(Screen):
 				if stored in self.storedcontent:
 					content = self.storedcontent[stored]
 				else:
-					content = (TV3PlayAddon(self.region).listPrograms())
-					if self.isError(content):
+					content = self.listPrograms()
+					if not content:
 						return None
 					self.storedcontent[stored] = content
 				self.menulist = "programs"
@@ -283,8 +242,8 @@ class TV3PlayMenu(Screen):
 				if stored in self.storedcontent:
 					content = self.storedcontent[stored]
 				else:
-					content = (TV3PlayAddon(self.region).listCategories(data))
-					if self.isError(content):
+					content = self.listCategories(data)
+					if not content:
 						return None
 					self.categories = data
 					self.storedcontent["categories%s" % data] = content
@@ -294,8 +253,8 @@ class TV3PlayMenu(Screen):
 				if stored in self.storedcontent:
 					content = self.storedcontent[stored]
 				else:
-					content = (TV3PlayAddon(self.region).listVideos(data))
-					if self.isError(content):
+					content = self.listVideos(data)
+					if not content:
 						return None
 					self.videos = data
 					self.storedcontent["videos%s" % data] = content
@@ -305,12 +264,78 @@ class TV3PlayMenu(Screen):
 				self.playVideo(current)
 		return content
 
-	def isError(self, content):
-		if content[:7] == " Error ":
-			self.session.open(MessageBox, content, MessageBox.TYPE_INFO)
-			return True
-		else:
-			return False
+	def Cancel(self):
+		if os.path.exists(TMPDIR):
+			for name in os.listdir(TMPDIR):
+				os.remove(os.path.join(TMPDIR, name))
+			os.rmdir(TMPDIR)
+		self.close()
+
+	def listPrograms(self):
+		formats = self.callApi('format')
+		if formats:
+			sections = []
+			content = []
+			for section in formats.get('sections', []):
+				sections.extend(section['formats'])
+			for section in sections:
+				try:
+					title = section['title'].encode('utf-8')
+					image = str(IMAGE_URL % section['image'].replace(' ', '%20'))
+					contentid = section['id']
+					content.append((title, image, contentid))
+				except:
+					pass
+			if content:
+				content.insert(0, (_('Return back...'), None, 'back'))
+				return content
+		return None
+
+	def listCategories(self, formatId):
+		detailed = self.callApi('detailed?formatid=%s' % formatId)
+		if detailed:
+			content = []
+			for category in detailed['formatcategories']:
+				try:
+					name = category['name'].encode('utf-8')
+					image = str(IMAGE_URL % category['image'].replace(' ', '%20'))
+					contentid = category['id']
+					content.append((name, image, contentid))
+				except:
+					pass
+			if content:
+				content.insert(0, (_('Return back...'), None, 'back'))
+				return content
+		return None
+
+	def listVideos(self, category):
+		videos = self.callApi('formatcategory/%s/video' % category)
+		if videos:
+			content = []
+			for video in videos:
+				try:
+					title = video['title'].encode('utf-8')
+					image = str(IMAGE_URL % video['image'].replace(' ', '%20'))
+					hlspath = str(video['hlspath'])
+					content.append((title, image, hlspath))
+				except:
+					pass
+			if content:
+				content.insert(0, (_('Return back...'), None, 'back'))
+				return content
+		return None
+
+	def callApi(self, urlType):
+		url = 'http://%s/mobileapi/%s' % (self.region, urlType)
+		try:
+			response = urlopen(Request(url=url, headers={
+						'user-agent': 'TV3 Play/1.0.3 CFNetwork/548.0.4 Darwin/11.0.0'
+					}))
+			return loads(response.read())
+		except Exception as ex:
+			print '[TV3 Play] Error', ex
+			self.session.open(MessageBox, str(ex), MessageBox.TYPE_INFO, timeout = 5)
+			return None
 
 	def playVideo(self, current):
 		#if "tv3latviavod" in videoId:
@@ -320,11 +345,4 @@ class TV3PlayMenu(Screen):
 		ref.setName(current[0])
 		print "[TV3 Play] Play:", current[2]
 		self.session.open(TV3Player, ref)
-
-	def Cancel(self):
-		if os.path.exists(TMPDIR):
-			for name in os.listdir(TMPDIR):
-				os.remove(os.path.join(TMPDIR, name))
-			os.rmdir(TMPDIR)
-		self.close()
 
