@@ -8,6 +8,7 @@ def localeInit():
 	bindtextdomain("TV3Play", resolveFilename(SCOPE_PLUGINS, \
 		"Extensions/TV3Play/locale"))
 
+
 def _(txt):
 	t = dgettext("TV3Play", txt)
 	if t == txt:
