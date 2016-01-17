@@ -199,7 +199,7 @@ class TV3PlayMenu(Screen):
 			self['cur'].setText('')
 			for line in content[1:]:
 				image = os.path.join(TMPDIR, line[0] + '.jpg')
-				if not image in self.picloads:
+				if image not in self.picloads:
 					downloadPage(line[1], image)\
 						.addCallback(boundFunction(self.downloadFinished, image))\
 						.addErrback(boundFunction(self.downloadFailed, image))
