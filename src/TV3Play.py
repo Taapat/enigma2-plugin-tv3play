@@ -56,7 +56,7 @@ class TV3Player(MoviePlayer):
 	def getPluginList(self):
 		from Components.PluginComponent import plugins
 		list = []
-		for p in plugins.getPlugins(where = PluginDescriptor.WHERE_EXTENSIONSMENU):
+		for p in plugins.getPlugins(where=PluginDescriptor.WHERE_EXTENSIONSMENU):
 			if p.name != _('TV3 Play'):
 				list.append(((boundFunction(self.getPluginName, p.name),
 					boundFunction(self.runPlugin, p), lambda: True), None))
@@ -185,7 +185,7 @@ class TV3PlayMenu(Screen):
 			sc[0], sc[1], False, 0, '#00000000'))
 		self.picloads[image].startDecode(image)
 
-	def FinishDecode(self, image, picInfo = None):
+	def FinishDecode(self, image, picInfo=None):
 		ptr = self.picloads[image].getData()
 		if ptr:
 			self['pic'].instance.setPixmap(ptr.__deref__())
@@ -334,7 +334,7 @@ class TV3PlayMenu(Screen):
 			return loads(response.read())
 		except Exception as ex:
 			print '[TV3 Play] Error', ex
-			self.session.open(MessageBox, str(ex), MessageBox.TYPE_INFO, timeout = 5)
+			self.session.open(MessageBox, str(ex), MessageBox.TYPE_INFO, timeout=5)
 			return None
 
 	def playVideo(self, current):
