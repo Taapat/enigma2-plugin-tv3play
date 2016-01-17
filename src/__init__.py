@@ -5,7 +5,7 @@ from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 
 
 def localeInit():
-	bindtextdomain("TV3Play", resolveFilename(SCOPE_PLUGINS, \
+	bindtextdomain("TV3Play", resolveFilename(SCOPE_PLUGINS,
 		"Extensions/TV3Play/locale"))
 
 
