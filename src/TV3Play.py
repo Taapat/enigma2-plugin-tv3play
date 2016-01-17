@@ -345,4 +345,3 @@ class TV3PlayMenu(Screen):
 		ref.setName(current[0])
 		print '[TV3 Play] Play:', current[2]
 		self.session.open(TV3Player, ref)
-
