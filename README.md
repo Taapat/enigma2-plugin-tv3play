@@ -2,6 +2,11 @@ TV3Play
 =========
 Enigma2 plugin to watch TV3 play online services
 
+Warning!
+-------
+Tvplay mobileapi stopped working therefore plugin not working anymore.
+Try: [enigma2-plugin-mtgplay](https://github.com/Taapat/enigma2-plugin-mtgplay)
+
 Depends
 -------
 python-json python-netclient python-twisted-web
